@@ -302,7 +302,15 @@ int subOK(int x, int y) {
  *   Rating: 3
  */
 int negPerByte(int x) {
-    return 2;
+	int b0 = x & 0xFF;
+	int b1 = (x >> 8) & 0xFF;
+	int b2 = (x >> 16) & 0xFF;
+	
+	int all = ~0, ans = (~x) + 1;
+	ans = ans + ((!b0 + all) & (1 << 8));
+	ans = ans + ((!b1 + all) & (1 << 16));
+	ans = ans + ((!b2 + all) & (1 << 24));
+	return ans;
 }
 /* 
  * isGreater - if x > y  then return 1, else return 0 
@@ -312,7 +320,15 @@ int negPerByte(int x) {
  *   Rating: 3
  */
 int isGreater(int x, int y) {
-  return 2;
+	int z = x + (~y + 1);
+	int sign_x = x >> 31;
+	int sign_y = y >> 31;
+	int sign_z = z >> 31;
+	
+	int f1 = ~(sign_x & ~sign_y); //f1 & 1 = 0 iff x is negative and y is non-negative
+	int f2 = ~sign_x & sign_y; //f1 & 1 = 1 iff x is non-negative and y is negative
+	int f3 = (~sign_z) & (!!z); // f3 & 1 = 1 iff z is negative
+	return (f1 & (f2 | f3)) & 1;
 }
 /* 
  * zeroByte - return 1 if one of four bytes of x is zero, and 0 otherwise
@@ -342,7 +358,24 @@ int zeroByte(int x) {
  *   Rating: 4
  */
 int modThree(int x) {
-    return 2;
+	int f16 = (0xFF << 8) | 0xFF;
+	int f10 = (0x03 << 8) | 0xFF;
+	int full = ~0;
+
+	int sign_x = (x >> 31) & 1;
+	x = x ^ (sign_x << 31);
+	
+	x = (x >> 16) + (x & f16) + sign_x;
+	x = (x >> 10) + (x & f10);
+	x = (x >> 6) + (x & 0x3F);
+	x = (x >> 4) + (x & 0xF);
+	x = (x >> 4) + (x & 0xF);
+	x = (x >> 2) + (x & 0x3);
+	x = (x >> 2) + (x & 0x3);
+	
+	x = (!(x ^ 3) + full) & x;
+	x = x + (((!sign_x | !x) + full) & ((~3) + 1));
+	return x;
 }
 /* howManyBits - return the minimum number of bits required to represent x in
  *             two's complement
@@ -357,7 +390,38 @@ int modThree(int x) {
  *  Rating: 4
  */
 int howManyBits(int x) {
-  return 0;
+	int full = ~0;
+	int sign = (x >> 31) & 1;
+	int y = 0, z = 0, w = 1;
+	x = x ^ (!sign + full);
+	//x' = -x - 1 if x is negative; x' = x otherwise
+	y = x + (~(1 << 16) + 1);
+	z = !((y >> 31) & 1) << 4;
+	w = w + z;
+	x = x >> z;
+
+	y = x + (~(1 << 8) + 1);
+	z = !((y >> 31) & 1) << 3;
+	w = w + z;
+	x = x >> z;
+	
+	y = x + (~16 + 1);
+	z = !((y >> 31) & 1) << 2;
+	w = w + z;
+	x = x >> z;
+	
+	y = x + (~4 + 1);
+	z = !((y >> 31) & 1) << 1;
+	w = w + z;
+	x = x >> z;
+	
+	y = x + (~2 + 1);
+	z = !((y >> 31) & 1);
+	w = w + z;
+	x = x >> z;
+	
+	w = w + x;
+	return w;
 }
 /* 
  * float_half - Return bit-level equivalent of expression 0.5*f for
