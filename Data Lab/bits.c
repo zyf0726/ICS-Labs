@@ -175,7 +175,21 @@ NOTES:
  *   Rating: 2
  */
 int testAndSet(int x, int y, int z) {
-    return 2;
+	int low_word = (0xFF << 8) | 0xFF;	
+	int low_x    = x & low_word;
+	int high_x   = x >> 16;
+	
+	int mark = !(low_x ^ y), val;
+	//mark = 1 if low word of x == y; mark = 0 otherwise.
+	mark = (mark << 1) | mark;
+	mark = (mark << 2) | mark;
+	mark = (mark << 4) | mark;
+	mark = (mark << 8) | mark;
+	//mark = 0xFFFF if low word of x == y; mark = 0x0000 otherwise.
+	val = (mark & z) | (~mark & high_x);
+	//val = z if mark = 0xFFFF
+	//val = x >> 16 if mark = 0x0000
+	return low_x | (val << 16);
 }
 /* 
  * oneMoreThan - return 1 if y is one more than x, and 0 otherwise
@@ -185,7 +199,10 @@ int testAndSet(int x, int y, int z) {
  *   Rating: 2
  */
 int oneMoreThan(int x, int y) {
-  return 2;
+	int f1 = !(y ^ (x + 1));
+	int INF = (0x7F << 24) | (0xFF << 16) | (0xFF << 8) | 0xFF;
+	int f2 = !!(x ^ INF);
+	return f1 & f2;
 }
 /*
  * isTmin - returns 1 if x is the minimum, two's complement number,
@@ -195,7 +212,7 @@ int oneMoreThan(int x, int y) {
  *   Rating: 1
  */
 int isTmin(int x) {
-  return 2;
+	return !((~x + 1) ^ x) & (!!x);
 }
 /*
  * halfAdd - single-bit add using bit-wise operations only.
@@ -207,7 +224,7 @@ int isTmin(int x) {
  *   Rating: 1
  */
 int halfAdd(int x, int y) {
-    return 2;
+	return ((x & y) << 1) | (x ^ y);
 }
 /* 
  * sameSign - return 1 if x and y have same sign, and 0 otherwise
@@ -217,7 +234,9 @@ int halfAdd(int x, int y) {
  *   Rating: 2
  */
 int sameSign(int x, int y) {
-  return 2;
+	int sign_x = x >> 31;
+	int sign_y = y >> 31;
+	return !((sign_x ^ sign_y) & 1);
 }
 /*
  * fullAdd - 4-bits add using bit-wise operations only.
@@ -229,7 +248,18 @@ int sameSign(int x, int y) {
  *   Rating: 2
  */
 int fullAdd(int x, int y) {
-    return 2;
+	int z0, z1, z2, z3, b;
+	
+	z0 = (x ^ y) & 1, b = (x & y) & 1;
+	
+	b = b << 1, z1 = (x ^ y ^ b) & 2;
+	b = ((x & (y | b)) | (y & b)) & 2;
+	
+	b = b << 1, z2 = (x ^ y ^ b) & 4;
+	b = ((x & (y | b)) | (y & b)) & 4;
+	
+	b = b << 1, z3 = (x ^ y ^ b) & 8;
+	return z0 | z1 | z2 | z3;
 }
 /* 
  * negate - return -x 
@@ -239,7 +269,7 @@ int fullAdd(int x, int y) {
  *   Rating: 2
  */
 int negate(int x) {
-  return 2;
+	return (~x) + 1;
 }
 /* 
  * subOK - Determine if can compute x-y without overflow
@@ -250,7 +280,19 @@ int negate(int x) {
  *   Rating: 3
  */
 int subOK(int x, int y) {
-  return 2;
+	int temp_y, sign_x, sign_y, sign_z, flag, res;
+	
+	temp_y = y, y = (~y) + 1;
+	flag = !((y ^ temp_y) | !y);
+	//check if y == 0x80000000
+	sign_x = x >> 31;
+	sign_y = y >> 31;
+	sign_z = (x + y) >> 31;
+	
+	res = !(((sign_z ^ sign_y) & (sign_z ^ sign_x)));
+	res = res & !(flag & !sign_x);
+	res = res | (flag & sign_x);
+	return res;
 }
 /*
  * negPerByte: negate each byte of x, then return x.
@@ -280,7 +322,15 @@ int isGreater(int x, int y) {
  *   Rating: 3
  */
 int zeroByte(int x) {
-  return 2;
+	int mask = 0;
+	mask = mask | !(x & 0xFF);
+	x = x >> 8;
+	mask = mask | !(x & 0xFF);
+	x = x >> 8;
+	mask = mask | !(x & 0xFF);
+	x = x >> 8;
+	mask = mask | !(x & 0xFF);
+	return mask;
 }
 /*
  * modThree - calculate x mod 3 without using %.
