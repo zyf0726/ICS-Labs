@@ -435,7 +435,23 @@ int howManyBits(int x) {
  *   Rating: 4
  */
 unsigned float_half(unsigned uf) {
-  return 2;
+	unsigned exp = (uf >> 23) & 0xFF;
+	unsigned frac = uf & 0x7FFFFF;
+	unsigned sign = (uf >> 31) & 1;
+	int b = frac & 1;
+	if (exp == 0xFF)
+		return uf;
+	//check if argument is NAN or INF
+	if (exp > 1) --exp;
+	else {
+		if (exp == 1)
+			frac += 1 << 23, --exp;
+		frac >>= 1;
+		frac += frac & b;
+		if ((frac >> 23) & 1)
+			frac = 0, ++exp;
+	}
+	return (sign << 31) | (exp << 23) | frac;
 }
 /* 
  * float_negpwr2 - Return bit-level equivalent of the expression 2.0^-x
@@ -451,5 +467,15 @@ unsigned float_half(unsigned uf) {
  *   Rating: 4
  */
 unsigned float_negpwr2(int x) {
-    return 2;
+	int exp = -x + 127, frac = 0;
+	if (x <= -128)
+		return 0x7F800000;
+	if (x >= 150)
+		return 0;
+	if (exp <= 0) {
+		--exp, frac = 1 << 23;
+		while (exp < 0)
+			frac >>= 1, ++exp;
+	}
+	return (exp << 23) | frac;
 }
