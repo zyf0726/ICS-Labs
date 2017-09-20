@@ -181,14 +181,9 @@ int testAndSet(int x, int y, int z) {
 	
 	int mark = !(low_x ^ y), val;
 	//mark = 1 if low word of x == y; mark = 0 otherwise.
-	mark = (mark << 1) | mark;
-	mark = (mark << 2) | mark;
-	mark = (mark << 4) | mark;
-	mark = (mark << 8) | mark;
-	//mark = 0xFFFF if low word of x == y; mark = 0x0000 otherwise.
+	mark = (~0) + (!mark);
+	//mark = 0xFFFFFFFF if low word of x == y; mark = 0x00000000 otherwise.
 	val = (mark & z) | (~mark & high_x);
-	//val = z if mark = 0xFFFF
-	//val = x >> 16 if mark = 0x0000
 	return low_x | (val << 16);
 }
 /* 
@@ -200,7 +195,7 @@ int testAndSet(int x, int y, int z) {
  */
 int oneMoreThan(int x, int y) {
 	int f1 = !(y ^ (x + 1));
-	int INF = (0x7F << 24) | (0xFF << 16) | (0xFF << 8) | 0xFF;
+	int INF = ~(1 << 31);
 	int f2 = !!(x ^ INF);
 	return f1 & f2;
 }
@@ -212,7 +207,7 @@ int oneMoreThan(int x, int y) {
  *   Rating: 1
  */
 int isTmin(int x) {
-	return !((~x + 1) ^ x) & (!!x);
+	return !(((~x + 1) ^ x) | !x);
 }
 /*
  * halfAdd - single-bit add using bit-wise operations only.
@@ -236,7 +231,7 @@ int halfAdd(int x, int y) {
 int sameSign(int x, int y) {
 	int sign_x = x >> 31;
 	int sign_y = y >> 31;
-	return !((sign_x ^ sign_y) & 1);
+	return !(sign_x ^ sign_y);
 }
 /*
  * fullAdd - 4-bits add using bit-wise operations only.
@@ -280,18 +275,12 @@ int negate(int x) {
  *   Rating: 3
  */
 int subOK(int x, int y) {
-	int temp_y, sign_x, sign_y, sign_z, flag, res;
+	int sign_x = x >> 31;
+	int sign_y = y >> 31;
+	int sign_z = (x + (~y) + 1) >> 31;
 	
-	temp_y = y, y = (~y) + 1;
-	flag = !((y ^ temp_y) | !y);
-	//check if y == 0x80000000
-	sign_x = x >> 31;
-	sign_y = y >> 31;
-	sign_z = (x + y) >> 31;
-	
-	res = !(((sign_z ^ sign_y) & (sign_z ^ sign_x)));
-	res = res & !(flag & !sign_x);
-	res = res | (flag & sign_x);
+	int res = !(sign_x ^ sign_y) | // sign_x == sign_y
+			  !(sign_x ^ sign_z); // sign_x == sign_z
 	return res;
 }
 /*
@@ -338,15 +327,10 @@ int isGreater(int x, int y) {
  *   Rating: 3
  */
 int zeroByte(int x) {
-	int mask = 0;
-	mask = mask | !(x & 0xFF);
-	x = x >> 8;
-	mask = mask | !(x & 0xFF);
-	x = x >> 8;
-	mask = mask | !(x & 0xFF);
-	x = x >> 8;
-	mask = mask | !(x & 0xFF);
-	return mask;
+	return !(x & 0xFF) |
+		   !(x & (0xFF << 8)) |
+		   !(x & (0xFF << 16)) |
+		   !(x & (0xFF << 24));
 }
 /*
  * modThree - calculate x mod 3 without using %.
@@ -395,31 +379,31 @@ int howManyBits(int x) {
 	int y = 0, z = 0, w = 1;
 	x = x ^ (!sign + full);
 	//x' = -x - 1 if x is negative; x' = x otherwise
-	y = x + (~(1 << 16) + 1);
-	z = !((y >> 31) & 1) << 4;
+	y = x >> 16;
+	z = !!y << 4;
 	w = w + z;
 	x = x >> z;
 
-	y = x + (~(1 << 8) + 1);
-	z = !((y >> 31) & 1) << 3;
+	y = x >> 8;
+	z = !!y << 3;
 	w = w + z;
 	x = x >> z;
 	
-	y = x + (~16 + 1);
-	z = !((y >> 31) & 1) << 2;
+	y = x >> 4;
+	z = !!y << 2;
 	w = w + z;
 	x = x >> z;
 	
-	y = x + (~4 + 1);
-	z = !((y >> 31) & 1) << 1;
+	y = x >> 2;
+	z = !!y << 1;
 	w = w + z;
 	x = x >> z;
 	
-	y = x + (~2 + 1);
-	z = !((y >> 31) & 1);
+	y = x >> 1;
+	z = !!y;
 	w = w + z;
 	x = x >> z;
-	
+		
 	w = w + x;
 	return w;
 }
@@ -437,7 +421,7 @@ int howManyBits(int x) {
 unsigned float_half(unsigned uf) {
 	unsigned exp = (uf >> 23) & 0xFF;
 	unsigned frac = uf & 0x7FFFFF;
-	unsigned sign = (uf >> 31) & 1;
+	unsigned sign = uf & 0x80000000;
 	int b = frac & 1;
 	if (exp == 0xFF)
 		return uf;
@@ -445,13 +429,13 @@ unsigned float_half(unsigned uf) {
 	if (exp > 1) --exp;
 	else {
 		if (exp == 1)
-			frac += 1 << 23, --exp;
+			frac += 0x800000, --exp;
 		frac >>= 1;
 		frac += frac & b;
-		if ((frac >> 23) & 1)
+		if (frac & 0x800000)
 			frac = 0, ++exp;
 	}
-	return (sign << 31) | (exp << 23) | frac;
+	return sign | (exp << 23) | frac;
 }
 /* 
  * float_negpwr2 - Return bit-level equivalent of the expression 2.0^-x
