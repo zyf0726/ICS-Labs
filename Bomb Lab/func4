@@ -1,0 +1,10 @@
+func4(u, v, w) {
+	mid = (u + v) / 2
+	if (u >= mid) {
+		if (u == mid)
+			return 0;
+		return 2*func4(u, mid+1, w) + 1;
+	}
+	else
+		return 2*func4(u, mid-1, w);
+}
