@@ -1,0 +1,41 @@
+for i = 0 to 5 {
+	value = arr[i] - 1
+	if (value > 0x5)
+		BOMB!!!
+	for j = i + 1 to 5
+		if (arr[i] == arr[j])
+			BOMB!!!
+}
+
+for i = 0 to 5
+	arr[i] = 7 - arr[i]
+	
+for i = 0 to 5 {
+	j = 1
+	addr = 0x604300
+	for (;;) {
+		if (j < arr[i]) {
+			addr = *(addr + 8)
+			++j
+		}
+		else break
+	}
+	(arr + 0x20)[i] = addr
+}
+
+p2 = p1 = (arr + 0x20)[0]
+for i = 1 to 5 {
+	ptr = (arr + 0x20)[i]
+	*(p2 + 8) = ptr
+	p2 = ptr
+}
+*(p2 + 8) = 0x0
+
+for i = 0 to 5 {
+	addr = *(p1 + 8)
+	value = *addr & 0xFFFFFFFF;
+	if ((*p1 & 0xFFFFFFFF) < value)
+		BOMB!!!
+	p1 = p1 + 8
+}
+

@@ -1,0 +1,14 @@
+func7(ptr, val) {
+	if (ptr == nullpt)
+		return -1
+	if (*ptr <= val) {
+		if (*ptr == val)
+			return 0
+		ptr = *(ptr + 0x10)
+		return 2 * func7(ptr, val) + 1
+	}
+	else {
+		ptr = *(ptr + 0x8)
+		return 2 * func7(ptr, val)
+	}
+}
