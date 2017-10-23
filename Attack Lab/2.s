@@ -1,2 +1,2 @@
-movl 0x605524, %edi
+movl $0x76927bbf, %edi
 ret
