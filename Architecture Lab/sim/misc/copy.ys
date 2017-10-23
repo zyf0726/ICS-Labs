@@ -1,0 +1,76 @@
+# Name: Yunfan Zhang
+# ID  : 1600012710
+
+# Execution begins at address 0 
+	.pos 0
+	irmovl	stack, %esp
+	rrmovl	%esp, %ebp
+	call main
+	halt
+	
+	.align 4
+# Source block
+src:
+	.long 0x00a
+	.long 0x0b0
+	.long 0xc00
+
+# Destination block
+dest:
+	.long 0x111
+	.long 0x222
+	.long 0x333
+	
+main:
+	pushl	%ebp
+	rrmovl	%esp, %ebp
+	irmovl	$3, %edx
+	pushl	%edx
+	irmovl	dest, %edx
+	pushl	%edx
+	irmovl	src, %edx
+	pushl	%edx
+	call	copy_block
+	rrmovl	%ebp, %esp
+	popl	%ebp
+	ret	
+	
+# int copy_block(int *src, int *dest, int len)
+copy_block:
+	pushl	%ebp
+	rrmovl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	irmovl	$4,	%ecx		# store 4 in %ecx
+	addl	%ecx, %ebp
+	addl	%ecx, %ebp
+	mrmovl	(%ebp), %edi	# fetch argument 1
+	addl	%ecx, %ebp
+	mrmovl	(%ebp), %esi	# fetch argument 2
+	addl	%ecx, %ebp
+	mrmovl	(%ebp), %edx	# fetch argument 3
+	xorl	%eax, %eax		# %eax = 0
+	andl	%edx, %edx		# test %edx
+	jmp	L2
+L1:
+	mrmovl	(%edi), %ebx
+	addl	%ecx, %edi
+	rmmovl	%ebx, (%esi)
+	addl	%ecx, %esi
+	xorl	%ebx, %eax
+	irmovl	$1, %ebx
+	subl	%ebx, %edx
+L2:
+	jg	L1
+L3:	
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	ret
+	
+# The stack starts here and grows to lower addresses
+	.pos 0x500
+stack:
+
