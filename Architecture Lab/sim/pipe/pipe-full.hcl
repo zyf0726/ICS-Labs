@@ -1,3 +1,23 @@
+# Name: Yunfan Zhang                                            #
+# ID  : 1600012710                                              #
+#################################################################
+#					iaddl V, rB                                 #
+# [Fetch]	   f_pc <- Select_PC(F_predPC, ...)                 #
+#			   f_icode:f_ifun <- M_1[f_pc]                      #
+#			   f_rA:f_rB <- M_1[f_pc+1]                         #
+#			   f_valC <- M_4[f_pc+2]                            #
+#			   f_valP <- f_pc+6                                 #
+#			   f_predPC <- f_valP							    #
+# [Decode]	   d_srcA <- 0xF                                    #
+#			   d_srcB <- D_rB                                   #
+#			   d_desM <- 0xF                                    #
+#			   d_dstE <- D_rB                                   #
+#			   d_valB <- Fwd_B(R[D_rB], ...)                    #
+# [Execute]    e_valE <- E_valB+E_valC                          #
+# [Memory]                                                      #
+# [Write Back] R[W_dstE] <- W_valE                              #
+#################################################################
+
 #/* $begin pipe-all-hcl */
 ####################################################################
 #    HCL Description of Control for Pipelined Y86 Processor        #
@@ -161,7 +181,7 @@ int f_ifun = [
 # Is instruction valid?
 bool instr_valid = f_icode in 
 	{ INOP, IHALT, IRRMOVL, IIRMOVL, IRMMOVL, IMRMOVL,
-	  IOPL, IJXX, ICALL, IRET, IPUSHL, IPOPL };
+	  IOPL, IJXX, ICALL, IRET, IPUSHL, IPOPL, IIADDL };
 
 # Determine status code for fetched instruction
 int f_stat = [
@@ -174,11 +194,11 @@ int f_stat = [
 # Does fetched instruction require a regid byte?
 bool need_regids =
 	f_icode in { IRRMOVL, IOPL, IPUSHL, IPOPL, 
-		     IIRMOVL, IRMMOVL, IMRMOVL };
+		     IIRMOVL, IRMMOVL, IMRMOVL, IIADDL };
 
 # Does fetched instruction require a constant word?
 bool need_valC =
-	f_icode in { IIRMOVL, IRMMOVL, IMRMOVL, IJXX, ICALL };
+	f_icode in { IIRMOVL, IRMMOVL, IMRMOVL, IJXX, ICALL, IIADDL };
 
 # Predict next value of PC
 int f_predPC = [
@@ -198,14 +218,14 @@ int d_srcA = [
 
 ## What register should be used as the B source?
 int d_srcB = [
-	D_icode in { IOPL, IRMMOVL, IMRMOVL  } : D_rB;
+	D_icode in { IOPL, IRMMOVL, IMRMOVL, IIADDL } : D_rB;
 	D_icode in { IPUSHL, IPOPL, ICALL, IRET } : RESP;
 	1 : RNONE;  # Don't need register
 ];
 
 ## What register should be used as the E destination?
 int d_dstE = [
-	D_icode in { IRRMOVL, IIRMOVL, IOPL} : D_rB;
+	D_icode in { IRRMOVL, IIRMOVL, IOPL, IIADDL } : D_rB;
 	D_icode in { IPUSHL, IPOPL, ICALL, IRET } : RESP;
 	1 : RNONE;  # Don't write any register
 ];
@@ -242,7 +262,7 @@ int d_valB = [
 ## Select input A to ALU
 int aluA = [
 	E_icode in { IRRMOVL, IOPL } : E_valA;
-	E_icode in { IIRMOVL, IRMMOVL, IMRMOVL } : E_valC;
+	E_icode in { IIRMOVL, IRMMOVL, IMRMOVL, IIADDL } : E_valC;
 	E_icode in { ICALL, IPUSHL } : -4;
 	E_icode in { IRET, IPOPL } : 4;
 	# Other instructions don't need ALU
@@ -251,7 +271,7 @@ int aluA = [
 ## Select input B to ALU
 int aluB = [
 	E_icode in { IRMMOVL, IMRMOVL, IOPL, ICALL, 
-		     IPUSHL, IRET, IPOPL } : E_valB;
+		     IPUSHL, IRET, IPOPL, IIADDL } : E_valB;
 	E_icode in { IRRMOVL, IIRMOVL } : 0;
 	# Other instructions don't need ALU
 ];
@@ -263,7 +283,7 @@ int alufun = [
 ];
 
 ## Should the condition codes be updated?
-bool set_cc = E_icode == IOPL &&
+bool set_cc = (E_icode == IOPL || E_icode == IIADDL) &&
 	# State changes only during normal operation
 	!m_stat in { SADR, SINS, SHLT } && !W_stat in { SADR, SINS, SHLT };
 
