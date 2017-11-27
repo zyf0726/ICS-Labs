@@ -122,7 +122,8 @@ int Sigsuspend(const sigset_t *set);
 void Setpgid(pid_t pid, pid_t pgid);
 pid_t Fork(void);
 int Open(const char *pathname, int flags, mode_t mode);
-
+int Dup2(int fd1, int fd2);
+void Close(int fd);
 
 /*
  * main - The shell's main routine 
@@ -380,8 +381,8 @@ eval(char *cmdline)
     
     int jid; pid_t pid; struct job_t *job;
     int saved_stdin, saved_stdout, fdi, fdo;
-    saved_stdin = dup(0);
-    saved_stdout = dup(1);
+    saved_stdin = dup(STDIN_FILENO);
+    saved_stdout = dup(STDOUT_FILENO);
     
     switch (tok.builtins) {
     /* Handle built-in commands. */
@@ -389,15 +390,12 @@ eval(char *cmdline)
     	exit(0);
     
     case BUILTIN_JOBS:
-    	if (tok.outfile) {
-			fdo = Open(tok.outfile, O_WRONLY | O_CREAT, 0);
-			dup2(fdo, 1);
-    	}
-    	listjobs(job_list, STDOUT_FILENO);
-    	if (tok.outfile) {
-			close(fdo);
-			dup2(saved_stdout, 1);
-    	}
+    	if (tok.outfile)
+			fdo = Open(tok.outfile, O_WRONLY|O_CREAT|O_TRUNC, 0);
+		else fdo = STDOUT_FILENO;
+    	listjobs(job_list, fdo);
+    	if (tok.outfile)
+    		Close(fdo);
     	break;
     
     case BUILTIN_BG:
@@ -440,11 +438,11 @@ eval(char *cmdline)
     	/* redirect the input and output */
     	if (tok.infile) {
     		fdi = Open(tok.infile, O_RDONLY, 0);
-    		dup2(fdi, 0);
+    		Dup2(fdi, STDIN_FILENO);
     	}
     	if (tok.outfile) {
-    		fdo = Open(tok.outfile, O_WRONLY, 0);
-    		dup2(fdo, 1);
+    		fdo = Open(tok.outfile, O_WRONLY|O_CREAT|O_TRUNC, 0);
+    		Dup2(fdo, STDOUT_FILENO);
     	}
     
     	Sigprocmask(SIG_BLOCK, &mask, &prev_mask); /* block signals */
@@ -472,9 +470,9 @@ eval(char *cmdline)
    		
     	/* recover STDIN and STDOUT */
     	if (tok.infile)
-    		dup2(saved_stdin, 0);
+    		Dup2(saved_stdin, STDIN_FILENO);
     	if (tok.outfile)
-    		dup2(saved_stdout, 1);
+    		Dup2(saved_stdout, STDOUT_FILENO);
     }
 }
 
@@ -495,10 +493,10 @@ sigchld_handler(int sig)
 {
 	sigset_t mask, prev_mask; 
 	Sigfillset(&mask);
+	Sigprocmask(SIG_BLOCK, &mask, &prev_mask); /* Block signals */
 	
 	pid_t pid; struct job_t *job; int status;
 	while ((pid = waitpid(-1, &status, WNOHANG | WUNTRACED)) > 0) {
-		Sigprocmask(SIG_BLOCK, &mask, &prev_mask); /* Block signals */
 		job = getjobpid(job_list, pid);
 		if (job->state == FG)
 			fg_flag = 0; /* no foreground job now */
@@ -520,11 +518,11 @@ sigchld_handler(int sig)
 			sio_puts("Job ["), sio_putl(pid2jid(pid)), sio_puts("] ");
 			sio_puts("("), sio_putl(pid), sio_puts(") ");
 			sio_puts("terminated by signal "), sio_putl(WTERMSIG(status)), sio_puts("\n"); 
-			deletejob(job_list, pid); /* job terminated */
-		}
-		
-		Sigprocmask(SIG_SETMASK, &prev_mask, NULL); /* Restore signals */
+			deletejob(job_list, pid);
+		}	
 	}
+	
+	Sigprocmask(SIG_SETMASK, &prev_mask, NULL); /* Restore signals */
 }
 
 /* 
@@ -951,3 +949,19 @@ int Open(const char *pathname, int flags, mode_t mode)
     return rc;
 }
 
+int Dup2(int fd1, int fd2) 
+{
+    int rc;
+
+    if ((rc = dup2(fd1, fd2)) < 0)
+	unix_error("Dup2 error");
+    return rc;
+}
+
+void Close(int fd) 
+{
+    int rc;
+
+    if ((rc = close(fd)) < 0)
+	unix_error("Close error");
+}
