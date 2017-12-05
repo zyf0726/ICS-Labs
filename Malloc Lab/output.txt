@@ -1,0 +1,617 @@
+Measuring performance with a cycle counter.
+Processor clock rate ~= 2000.0 MHz
+
+Testing mm malloc
+Reading tracefile: /traces/fs.rep
+Checking mm_malloc for correctness, extend_heap 256 bytes
+coalesce(0x800000018)
+extend_heap 1328 bytes
+coalesce(0x800000118)
+place(0x800000018, asize=1328) size=1584
+place(0x800000548, asize=24) size=256
+place(0x800000560, asize=48) size=232
+place(0x800000590, asize=16) size=184
+place(0x8000005a0, asize=24) size=168
+extend_heap 1328 bytes
+coalesce(0x800000648)
+place(0x8000005b8, asize=1328) size=1472
+place(0x800000ae8, asize=16) size=144
+extend_heap 1328 bytes
+coalesce(0x800000b78)
+place(0x800000af8, asize=1328) size=1456
+place(0x800001028, asize=24) size=128
+place(0x800001040, asize=48) size=104
+place(0x800001070, asize=16) size=56
+place(0x800001080, asize=24) size=40
+place(0x800001098, asize=16) size=16
+extend_heap 256 bytes
+coalesce(0x8000010a8)
+place(0x8000010a8, asize=32) size=256
+extend_heap 1328 bytes
+coalesce(0x8000011a8)
+place(0x8000010c8, asize=1328) size=1552
+place(0x8000015f8, asize=16) size=224
+extend_heap 1328 bytes
+coalesce(0x8000016d8)
+place(0x800001608, asize=1328) size=1536
+place(0x800001b38, asize=24) size=208
+place(0x800001b50, asize=24) size=184
+place(0x800001b68, asize=16) size=160
+place(0x800001b78, asize=24) size=144
+place(0x800001b90, asize=16) size=120
+place(0x800001ba0, asize=32) size=104
+place(0x800001bc0, asize=16) size=72
+place(0x800001bd0, asize=32) size=56
+place(0x800001bf0, asize=16) size=24
+extend_heap 256 bytes
+coalesce(0x800001c08)
+place(0x800001c08, asize=32) size=256
+place(0x800001c28, asize=16) size=224
+place(0x800001c38, asize=24) size=208
+extend_heap 1328 bytes
+coalesce(0x800001d08)
+place(0x800001c50, asize=1328) size=1512
+place(0x800002180, asize=16) size=184
+extend_heap 1328 bytes
+coalesce(0x800002238)
+place(0x800002190, asize=1328) size=1496
+place(0x8000026c0, asize=24) size=168
+place(0x8000026d8, asize=24) size=144
+place(0x8000026f0, asize=16) size=120
+place(0x800002700, asize=24) size=104
+place(0x800002718, asize=16) size=80
+place(0x800002728, asize=32) size=64
+place(0x800002748, asize=16) size=32
+extend_heap 256 bytes
+coalesce(0x800002768)
+place(0x800002758, asize=24) size=272
+place(0x800002770, asize=16) size=248
+place(0x800002780, asize=16) size=232
+extend_heap 1328 bytes
+coalesce(0x800002868)
+place(0x800002790, asize=1328) size=1544
+place(0x800002cc0, asize=16) size=216
+extend_heap 1328 bytes
+coalesce(0x800002d98)
+place(0x800002cd0, asize=1328) size=1528
+place(0x800003200, asize=16) size=200
+place(0x800003210, asize=32) size=184
+place(0x800003230, asize=16) size=152
+place(0x800003240, asize=24) size=136
+place(0x800003258, asize=16) size=112
+place(0x800003268, asize=16) size=96
+place(0x800003278, asize=16) size=80
+place(0x800003288, asize=24) size=64
+place(0x8000032a0, asize=16) size=40
+place(0x8000032b0, asize=24) size=24
+extend_heap 256 bytes
+coalesce(0x8000032c8)
+place(0x8000032c8, asize=16) size=256
+place(0x8000032d8, asize=32) size=240
+place(0x8000032f8, asize=16) size=208
+place(0x800003308, asize=40) size=192
+place(0x800003330, asize=16) size=152
+place(0x800003340, asize=32) size=136
+extend_heap 1328 bytes
+coalesce(0x8000033c8)
+place(0x800003360, asize=1328) size=1432
+place(0x800003890, asize=16) size=104
+extend_heap 1328 bytes
+coalesce(0x8000038f8)
+place(0x8000038a0, asize=1328) size=1416
+place(0x800003dd0, asize=16) size=88
+place(0x800003de0, asize=32) size=72
+place(0x800003e00, asize=16) size=40
+place(0x800003e10, asize=24) size=24
+extend_heap 256 bytes
+coalesce(0x800003e28)
+place(0x800003e28, asize=16) size=256
+place(0x800003e38, asize=24) size=240
+place(0x800003e50, asize=16) size=216
+place(0x800003e60, asize=32) size=200
+place(0x800003e80, asize=16) size=168
+place(0x800003e90, asize=24) size=152
+extend_heap 1328 bytes
+coalesce(0x800003f28)
+place(0x800003ea8, asize=1328) size=1456
+place(0x8000043d8, asize=16) size=128
+extend_heap 1328 bytes
+coalesce(0x800004458)
+place(0x8000043e8, asize=1328) size=1440
+place(0x800004918, asize=16) size=112
+place(0x800004928, asize=40) size=96
+place(0x800004950, asize=16) size=56
+place(0x800004960, asize=24) size=40
+place(0x800004978, asize=16) size=16
+extend_heap 256 bytes
+coalesce(0x800004988)
+place(0x800004988, asize=24) size=256
+extend_heap 1328 bytes
+coalesce(0x800004a88)
+place(0x8000049a0, asize=1328) size=1560
+place(0x800004ed0, asize=16) size=232
+place(0x800004ee0, asize=32) size=216
+place(0x800004f00, asize=16) size=184
+place(0x800004f10, asize=24) size=168
+place(0x800004f28, asize=16) size=144
+place(0x800004f38, asize=40) size=128
+place(0x800004f60, asize=16) size=88
+place(0x800004f70, asize=40) size=72
+place(0x800004f98, asize=16) size=32
+extend_heap 256 bytes
+coalesce(0x800004fb8)
+place(0x800004fa8, asize=40) size=272
+place(0x800004fd0, asize=16) size=232
+place(0x800004fe0, asize=32) size=216
+place(0x800005000, asize=16) size=184
+place(0x800005010, asize=24) size=168
+extend_heap 1328 bytes
+coalesce(0x8000050b8)
+place(0x800005028, asize=1328) size=1472
+place(0x800005558, asize=16) size=144
+extend_heap 1328 bytes
+coalesce(0x8000055e8)
+place(0x800005568, asize=1328) size=1456
+place(0x800005a98, asize=16) size=128
+place(0x800005aa8, asize=32) size=112
+place(0x800005ac8, asize=16) size=80
+place(0x800005ad8, asize=24) size=64
+place(0x800005af0, asize=16) size=40
+place(0x800005b00, asize=24) size=24
+extend_heap 1328 bytes
+coalesce(0x800005b18)
+place(0x800005b18, asize=1328) size=1328
+extend_heap 256 bytes
+coalesce(0x800006048)
+place(0x800006048, asize=16) size=256
+place(0x800006058, asize=40) size=240
+place(0x800006080, asize=16) size=200
+place(0x800006090, asize=24) size=184
+place(0x8000060a8, asize=16) size=160
+place(0x8000060b8, asize=24) size=144
+extend_heap 1328 bytes
+coalesce(0x800006148)
+place(0x8000060d0, asize=1328) size=1448
+place(0x800006600, asize=16) size=120
+place(0x800006610, asize=24) size=104
+place(0x800006628, asize=16) size=80
+place(0x800006638, asize=24) size=64
+place(0x800006650, asize=16) size=40
+place(0x800006660, asize=24) size=24
+extend_heap 256 bytes
+coalesce(0x800006678)
+place(0x800006678, asize=16) size=256
+place(0x800006688, asize=40) size=240
+place(0x8000066b0, asize=16) size=200
+place(0x8000066c0, asize=24) size=184
+extend_heap 1328 bytes
+coalesce(0x800006778)
+place(0x8000066d8, asize=1328) size=1488
+place(0x800006c08, asize=16) size=160
+extend_heap 1328 bytes
+coalesce(0x800006ca8)
+place(0x800006c18, asize=1328) size=1472
+place(0x800007148, asize=16) size=144
+place(0x800007158, asize=40) size=128
+place(0x800007180, asize=16) size=88
+place(0x800007190, asize=24) size=72
+place(0x8000071a8, asize=16) size=48
+place(0x8000071b8, asize=32) size=32
+extend_heap 1328 bytes
+coalesce(0x8000071d8)
+place(0x8000071d8, asize=1328) size=1328
+extend_heap 256 bytes
+coalesce(0x800007708)
+place(0x800007708, asize=16) size=256
+place(0x800007718, asize=32) size=240
+place(0x800007738, asize=16) size=208
+place(0x800007748, asize=24) size=192
+place(0x800007760, asize=16) size=168
+place(0x800007770, asize=24) size=152
+extend_heap 1328 bytes
+coalesce(0x800007808)
+place(0x800007788, asize=1328) size=1456
+place(0x800007cb8, asize=16) size=128
+extend_heap 1328 bytes
+coalesce(0x800007d38)
+place(0x800007cc8, asize=1328) size=1440
+place(0x8000081f8, asize=16) size=112
+extend_heap 1328 bytes
+coalesce(0x800008268)
+place(0x800008208, asize=1328) size=1424
+place(0x800008738, asize=16) size=96
+place(0x800008748, asize=24) size=80
+place(0x800008760, asize=16) size=56
+place(0x800008770, asize=24) size=40
+place(0x800008788, asize=16) size=16
+extend_heap 256 bytes
+coalesce(0x800008798)
+place(0x800008798, asize=24) size=256
+extend_heap 1328 bytes
+coalesce(0x800008898)
+place(0x8000087b0, asize=1328) size=1560
+place(0x800008ce0, asize=16) size=232
+extend_heap 1328 bytes
+coalesce(0x800008dc8)
+place(0x800008cf0, asize=1328) size=1544
+place(0x800009220, asize=16) size=216
+place(0x800009230, asize=40) size=200
+place(0x800009258, asize=16) size=160
+place(0x800009268, asize=24) size=144
+place(0x800009280, asize=16) size=120
+place(0x800009290, asize=24) size=104
+extend_heap 1328 bytes
+coalesce(0x8000092f8)
+place(0x8000092a8, asize=1328) size=1408
+place(0x8000097d8, asize=16) size=80
+extend_heap 1328 bytes
+coalesce(0x800009828)
+place(0x8000097e8, asize=1328) size=1392
+place(0x800009d18, asize=16) size=64
+place(0x800009d28, asize=32) size=48
+place(0x800009d48, asize=16) size=16
+extend_heap 256 bytes
+coalesce(0x800009d58)
+place(0x800009d58, asize=24) size=256
+place(0x800009d70, asize=16) size=232
+place(0x800009d80, asize=24) size=216
+extend_heap 1328 bytes
+coalesce(0x800009e58)
+place(0x800009d98, asize=1328) size=1520
+place(0x80000a2c8, asize=16) size=192
+place(0x80000a2d8, asize=24) size=176
+place(0x80000a2f0, asize=16) size=152
+place(0x80000a300, asize=24) size=136
+place(0x80000a318, asize=16) size=112
+place(0x80000a328, asize=16) size=96
+extend_heap 1328 bytes
+coalesce(0x80000a388)
+place(0x80000a338, asize=1328) size=1408
+place(0x80000a868, asize=16) size=80
+place(0x80000a878, asize=24) size=64
+place(0x80000a890, asize=16) size=40
+place(0x80000a8a0, asize=24) size=24
+extend_heap 256 bytes
+coalesce(0x80000a8b8)
+place(0x80000a8b8, asize=16) size=256
+place(0x80000a8c8, asize=16) size=240
+place(0x80000a8d8, asize=16) size=224
+place(0x80000a8e8, asize=16) size=208
+place(0x80000a8f8, asize=16) size=192
+place(0x80000a908, asize=16) size=176
+place(0x80000a918, asize=16) size=160
+place(0x80000a928, asize=24) size=144
+place(0x80000a940, asize=16) size=120
+place(0x80000a950, asize=32) size=104
+extend_heap 1328 bytes
+coalesce(0x80000a9b8)
+place(0x80000a970, asize=1328) size=1400
+place(0x80000aea0, asize=16) size=72
+place(0x80000aeb0, asize=24) size=56
+place(0x80000aec8, asize=16) size=32
+extend_heap 256 bytes
+coalesce(0x80000aee8)
+place(0x80000aed8, asize=24) size=272
+place(0x80000aef0, asize=16) size=248
+place(0x80000af00, asize=16) size=232
+extend_heap 1328 bytes
+coalesce(0x80000afe8)
+place(0x80000af10, asize=1328) size=1544
+place(0x80000b440, asize=24) size=216
+place(0x80000b458, asize=32) size=192
+place(0x80000b478, asize=16) size=160
+place(0x80000b488, asize=24) size=144
+place(0x80000b4a0, asize=16) size=120
+place(0x80000b4b0, asize=24) size=104
+place(0x80000b4c8, asize=16) size=80
+place(0x80000b4d8, asize=24) size=64
+place(0x80000b4f0, asize=16) size=40
+extend_heap 256 bytes
+coalesce(0x80000b518)
+place(0x80000b500, asize=32) size=280
+place(0x80000b520, asize=16) size=248
+place(0x80000b530, asize=32) size=232
+extend_heap 1328 bytes
+coalesce(0x80000b618)
+place(0x80000b550, asize=1328) size=1528
+place(0x80000ba80, asize=24) size=200
+place(0x80000ba98, asize=40) size=176
+place(0x80000bac0, asize=16) size=136
+place(0x80000bad0, asize=24) size=120
+extend_heap 1328 bytes
+coalesce(0x80000bb48)
+place(0x80000bae8, asize=1328) size=1424
+place(0x80000c018, asize=24) size=96
+extend_heap 1328 bytes
+coalesce(0x80000c078)
+place(0x80000c030, asize=1328) size=1400
+place(0x80000c560, asize=24) size=72
+place(0x80000c578, asize=24) size=48
+place(0x80000c590, asize=16) size=24
+extend_heap 256 bytes
+coalesce(0x80000c5a8)
+place(0x80000c5a8, asize=24) size=256
+place(0x80000c5c0, asize=16) size=232
+place(0x80000c5d0, asize=40) size=216
+extend_heap 1328 bytes
+coalesce(0x80000c6a8)
+place(0x80000c5f8, asize=1328) size=1504
+place(0x80000cb28, asize=16) size=176
+place(0x80000cb38, asize=16) size=160
+place(0x80000cb48, asize=40) size=144
+extend_heap 1328 bytes
+coalesce(0x80000cbd8)
+place(0x80000cb70, asize=1328) size=1432
+place(0x80000d0a0, asize=24) size=104
+place(0x80000d0b8, asize=32) size=80
+place(0x80000d0d8, asize=16) size=48
+place(0x80000d0e8, asize=24) size=32
+extend_heap 1328 bytes
+coalesce(0x80000d108)
+place(0x80000d108, asize=1328) size=1328
+extend_heap 256 bytes
+coalesce(0x80000d638)
+place(0x80000d638, asize=16) size=256
+place(0x80000d648, asize=32) size=240
+place(0x80000d668, asize=16) size=208
+place(0x80000d678, asize=24) size=192
+place(0x80000d690, asize=16) size=168
+place(0x80000d6a0, asize=24) size=152
+extend_heap 1328 bytes
+coalesce(0x80000d738)
+place(0x80000d6b8, asize=1328) size=1456
+place(0x80000dbe8, asize=16) size=128
+place(0x80000dbf8, asize=40) size=112
+place(0x80000dc20, asize=16) size=72
+place(0x80000dc30, asize=24) size=56
+extend_heap 1328 bytes
+coalesce(0x80000dc68)
+place(0x80000dc48, asize=1328) size=1360
+place(0x80000e178, asize=16) size=32
+extend_heap 256 bytes
+coalesce(0x80000e198)
+place(0x80000e188, asize=24) size=272
+place(0x80000e1a0, asize=16) size=248
+place(0x80000e1b0, asize=24) size=232
+place(0x80000e1c8, asize=16) size=208
+place(0x80000e1d8, asize=24) size=192
+place(0x80000e1f0, asize=16) size=168
+place(0x80000e200, asize=24) size=152
+extend_heap 1328 bytes
+coalesce(0x80000e298)
+place(0x80000e218, asize=1328) size=1456
+place(0x80000e748, asize=16) size=128
+extend_heap 1328 bytes
+coalesce(0x80000e7c8)
+place(0x80000e758, asize=1328) size=1440
+place(0x80000ec88, asize=16) size=112
+place(0x80000ec98, asize=24) size=96
+place(0x80000ecb0, asize=16) size=72
+place(0x80000ecc0, asize=24) size=56
+place(0x80000ecd8, asize=16) size=32
+place(0x80000ece8, asize=16) size=16
+extend_heap 256 bytes
+coalesce(0x80000ecf8)
+place(0x80000ecf8, asize=16) size=256
+place(0x80000ed08, asize=24) size=240
+place(0x80000ed20, asize=16) size=216
+place(0x80000ed30, asize=24) size=200
+extend_heap 1328 bytes
+coalesce(0x80000edf8)
+place(0x80000ed48, asize=1328) size=1504
+place(0x80000f278, asize=16) size=176
+place(0x80000f288, asize=32) size=160
+place(0x80000f2a8, asize=16) size=128
+place(0x80000f2b8, asize=24) size=112
+place(0x80000f2d0, asize=16) size=88
+place(0x80000f2e0, asize=16) size=72
+place(0x80000f2f0, asize=16) size=56
+place(0x80000f300, asize=24) size=40
+extend_heap 1328 bytes
+coalesce(0x80000f328)
+place(0x80000f318, asize=1328) size=1344
+place(0x80000f848, asize=16) size=16
+extend_heap 256 bytes
+coalesce(0x80000f858)
+place(0x80000f858, asize=24) size=256
+place(0x80000f870, asize=16) size=232
+place(0x80000f880, asize=24) size=216
+place(0x80000f898, asize=16) size=192
+place(0x80000f8a8, asize=24) size=176
+extend_heap 1328 bytes
+coalesce(0x80000f958)
+place(0x80000f8c0, asize=1328) size=1480
+place(0x80000fdf0, asize=16) size=152
+place(0x80000fe00, asize=32) size=136
+place(0x80000fe20, asize=16) size=104
+place(0x80000fe30, asize=24) size=88
+place(0x80000fe48, asize=16) size=64
+place(0x80000fe58, asize=24) size=48
+extend_heap 1328 bytes
+coalesce(0x80000fe88)
+place(0x80000fe70, asize=1328) size=1352
+place(0x8000103a0, asize=16) size=24
+extend_heap 256 bytes
+coalesce(0x8000103b8)
+place(0x8000103b8, asize=32) size=256
+place(0x8000103d8, asize=16) size=224
+place(0x8000103e8, asize=24) size=208
+extend_heap 1328 bytes
+coalesce(0x8000104b8)
+place(0x800010400, asize=1328) size=1512
+place(0x800010930, asize=16) size=184
+place(0x800010940, asize=16) size=168
+place(0x800010950, asize=24) size=152
+place(0x800010968, asize=16) size=128
+place(0x800010978, asize=24) size=112
+extend_heap 1328 bytes
+coalesce(0x8000109e8)
+place(0x800010990, asize=1328) size=1416
+place(0x800010ec0, asize=16) size=88
+extend_heap 1328 bytes
+coalesce(0x800010f18)
+place(0x800010ed0, asize=1328) size=1400
+place(0x800011400, asize=24) size=72
+place(0x800011418, asize=24) size=48
+place(0x800011430, asize=16) size=24
+extend_heap 256 bytes
+coalesce(0x800011448)
+place(0x800011448, asize=24) size=256
+place(0x800011460, asize=16) size=232
+place(0x800011470, asize=16) size=216
+extend_heap 1328 bytes
+coalesce(0x800011548)
+place(0x800011480, asize=1328) size=1528
+place(0x8000119b0, asize=16) size=200
+place(0x8000119c0, asize=24) size=184
+place(0x8000119d8, asize=16) size=160
+place(0x8000119e8, asize=24) size=144
+place(0x800011a00, asize=16) size=120
+place(0x800011a10, asize=16) size=104
+place(0x800011a20, asize=16) size=88
+place(0x800011a30, asize=32) size=72
+place(0x800011a50, asize=16) size=40
+extend_heap 256 bytes
+coalesce(0x800011a78)
+place(0x800011a60, asize=32) size=280
+extend_heap 1328 bytes
+coalesce(0x800011b78)
+place(0x800011a80, asize=1328) size=1576
+place(0x800011fb0, asize=16) size=248
+place(0x800011fc0, asize=32) size=232
+place(0x800011fe0, asize=16) size=200
+place(0x800011ff0, asize=24) size=184
+place(0x800012008, asize=16) size=160
+place(0x800012018, asize=24) size=144
+extend_heap 1328 bytes
+coalesce(0x8000120a8)
+place(0x800012030, asize=1328) size=1448
+place(0x800012560, asize=16) size=120
+place(0x800012570, asize=40) size=104
+place(0x800012598, asize=16) size=64
+place(0x8000125a8, asize=24) size=48
+place(0x8000125c0, asize=16) size=24
+extend_heap 256 bytes
+coalesce(0x8000125d8)
+place(0x8000125d8, asize=16) size=256
+extend_heap 1328 bytes
+coalesce(0x8000126d8)
+place(0x8000125e8, asize=1328) size=1568
+place(0x800012b18, asize=16) size=240
+place(0x800012b28, asize=40) size=224
+place(0x800012b50, asize=16) size=184
+place(0x800012b60, asize=24) size=168
+place(0x800012b78, asize=16) size=144
+place(0x800012b88, asize=24) size=128
+place(0x800012ba0, asize=16) size=104
+place(0x800012bb0, asize=40) size=88
+place(0x800012bd8, asize=16) size=48
+extend_heap 256 bytes
+coalesce(0x800012c08)
+place(0x800012be8, asize=48) size=288
+place(0x800012c18, asize=16) size=240
+place(0x800012c28, asize=48) size=224
+place(0x800012c58, asize=16) size=176
+place(0x800012c68, asize=56) size=160
+extend_heap 1328 bytes
+coalesce(0x800012d08)
+place(0x800012ca0, asize=1328) size=1432
+place(0x8000131d0, asize=16) size=104
+place(0x8000131e0, asize=40) size=88
+place(0x800013208, asize=16) size=48
+place(0x800013218, asize=24) size=32
+extend_heap 256 bytes
+coalesce(0x800013238)
+place(0x800013238, asize=16) size=256
+place(0x800013248, asize=40) size=240
+place(0x800013270, asize=16) size=200
+place(0x800013280, asize=24) size=184
+place(0x800013298, asize=16) size=160
+place(0x8000132a8, asize=24) size=144
+place(0x8000132c0, asize=16) size=120
+place(0x8000132d0, asize=16) size=104
+extend_heap 1328 bytes
+coalesce(0x800013338)
+place(0x8000132e0, asize=1328) size=1416
+place(0x800013810, asize=16) size=88
+extend_heap 1328 bytes
+coalesce(0x800013868)
+place(0x800013820, asize=1328) size=1400
+place(0x800013d50, asize=16) size=72
+place(0x800013d60, asize=40) size=56
+place(0x800013d88, asize=16) size=16
+extend_heap 256 bytes
+coalesce(0x800013d98)
+place(0x800013d98, asize=24) size=256
+place(0x800013db0, asize=16) size=232
+place(0x800013dc0, asize=16) size=216
+extend_heap 1328 bytes
+coalesce(0x800013e98)
+place(0x800013dd0, asize=1328) size=1528
+place(0x800014300, asize=16) size=200
+place(0x800014310, asize=40) size=184
+place(0x800014338, asize=16) size=144
+place(0x800014348, asize=24) size=128
+extend_heap 1328 bytes
+coalesce(0x8000143c8)
+place(0x800014360, asize=1328) size=1432
+place(0x800014890, asize=16) size=104
+place(0x8000148a0, asize=40) size=88
+place(0x8000148c8, asize=16) size=48
+place(0x8000148d8, asize=24) size=32
+extend_heap 256 bytes
+coalesce(0x8000148f8)
+place(0x8000148f8, asize=16) size=256
+place(0x800014908, asize=24) size=240
+place(0x800014920, asize=16) size=216
+place(0x800014930, asize=24) size=200
+place(0x800014948, asize=16) size=176
+place(0x800014958, asize=24) size=160
+extend_heap 1328 bytes
+coalesce(0x8000149f8)
+place(0x800014970, asize=1328) size=1464
+place(0x800014ea0, asize=16) size=136
+place(0x800014eb0, asize=40) size=120
+place(0x800014ed8, asize=16) size=80
+place(0x800014ee8, asize=24) size=64
+place(0x800014f00, asize=16) size=40
+place(0x800014f10, asize=24) size=24
+extend_heap 256 bytes
+coalesce(0x800014f28)
+place(0x800014f28, asize=16) size=256
+place(0x800014f38, asize=24) size=240
+place(0x800014f50, asize=16) size=216
+place(0x800014f60, asize=24) size=200
+extend_heap 1328 bytes
+coalesce(0x800015028)
+place(0x800014f78, asize=1328) size=1504
+place(0x8000154a8, asize=16) size=176
+place(0x8000154b8, asize=32) size=160
+place(0x8000154d8, asize=16) size=128
+place(0x8000154e8, asize=24) size=112
+place(0x800015500, asize=16) size=88
+place(0x800015510, asize=16) size=72
+place(0x800015520, asize=16) size=56
+extend_heap 1328 bytes
+coalesce(0x800015558)
+place(0x800015530, asize=1328) size=1368
+place(0x800015a60, asize=16) size=40
+place(0x800015a70, asize=24) size=24
+extend_heap 256 bytes
+coalesce(0x800015a88)
+place(0x800015a88, asize=16) size=256
+place(0x800015a98, asize=24) size=240
+place(0x800015ab0, asize=16) size=216
+place(0x800015ac0, asize=16) size=200
+extend_heap 368 bytes
+coalesce(0x800015b88)
+place(0x800015ad0, asize=368) size=552
+coalesce(0x800015ad0)
+place(0x800015ad0, asize=368) size=552
+coalesce(0x800015ad0)
+
+
+correctness check finished, by running tracefile "/traces/fs.rep".
+ => correct.
+
+Perf index = 0 (util) & 0 (thru) = 0/100
