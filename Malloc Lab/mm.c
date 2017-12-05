@@ -87,25 +87,37 @@
 
 /* head/cur node of each list */	/*   words				policy 			*/
 static void *head_1, *cur_1,		/*   1 ~  4			LIFO + next_fit		*/
-		    *head_2, *cur_2,		/*   5 ~  8				....			*/
-			*head_3, *cur_3,		/*   9 ~  12			....			*/
-			*head_4, *cur_4,		/*   13 ~ 16			....			*/
-			*head_5, *cur_5,		/*   17 ~ 20			....			*/
-			*head_6, *cur_6,		/*   21 ~ 24			....			*/
-			*head_7, *cur_7,		/*   25 ~ 28			....			*/
-			*head_8, *cur_8,		/*   29 ~ 32			....			*/
-			*head_9, *cur_9,		/*   33 ~ 40			....			*/		
-			*head_10, *cur_10,		/*	 41 ~ 48			....			*/
-			*head_11, 				/*   49 ~ 64		ADDR + first_fit	*/
-			*head_12,				/*   65 ~ 128			....			*/
-			*head_13,				/*	129 ~ 256			....			*/
-			*head_14,				/*	257 ~ 512			....			*/
-			*head_15;				/*	513 ~ inf			....			*/
+		    *head_2, *cur_2,		/*   5 ~  6				....			*/
+			*head_3, *cur_3,		/*   7 ~  8				....			*/
+			*head_4, *cur_4,		/*   9 ~ 10				....			*/
+			*head_5, *cur_5,		/*   11 ~ 12			....			*/
+			*head_6, *cur_6,		/*   13 ~ 14			....			*/
+			*head_7, *cur_7,		/*   15 ~ 16			....			*/
+			*head_8, *cur_8,		/*   17 ~ 18			....			*/
+			*head_9, *cur_9,		/*   19 ~ 20			....			*/		
+			*head_10, *cur_10,		/*	 21 ~ 32			....			*/
+			*head_11, *cur_11,		/*   33 ~ 40			....			*/
+			*head_12, *cur_12,		/*   41 ~ 48			....			*/
+			*head_13, 				/*   49 ~ 64		LIFO + first_fit	*/
+			*head_14,				/*   65 ~ 128			....			*/
+			*head_15,				/*	129 ~ 216			....			*/
+			*head_16,				/*	217 ~ 448			....			*/
+			*head_17,				/*	449 ~ 768			....			*/
+			*head_18,				/*  769 ~ 1536		ADDR + first_fit	*/
+			*head_19,				/*  1537 ~ 4096			....			*/
+			*head_20;				/*  4097 ~ inf			....			*/
 					
-#define LIFO_NXTFIT			0x1
-#define ADDR_FSTFIT			0x2
-#define GET_POLICY(bid)		(((bid) <= 10) ? (LIFO_NXTFIT) : (ADDR_FSTFIT))
-#define BUCKET_CNT			15
+#define LIFO_NXTFIT			0x2
+#define LIFO_FSTFIT			0x3
+#define ADDR_FSTFIT			0x1
+#define GET_POLICY(bid)		(((bid) <= 12) ? (LIFO_NXTFIT) :\
+							 ((bid) <= 17) ? (LIFO_FSTFIT) :\
+							 (ADDR_FSTFIT))
+#define IS_NXTFIT(code)		(!((code) & 1))
+#define IS_FSTFIT(code)		((code) & 1)
+#define IS_LIFO(code)		((code) >> 1)
+#define IS_ADDR(code)		(!((code) >> 1))
+#define BUCKET_CNT			20
 
 static void *EPLG_BP = NULL;				/* epilogue block pointer */
 static void *PRLG_BP = NULL;				/* prologue block pointer */
@@ -113,40 +125,50 @@ static void *PRLG_BP = NULL;				/* prologue block pointer */
 /* Given size, find which bucket it fits */
 static inline int GET_BUCKETID(int size) {
 	if (size >= 1 && size <= 4) return 1;
-	if (size >= 5 && size <= 8) return 2;
-	if (size >= 9 && size <= 12) return 3;
-	if (size >= 13 && size <= 16) return 4;
-	if (size >= 17 && size <= 20) return 5;
-	if (size >= 21 && size <= 24) return 6;
-	if (size >= 25 && size <= 28) return 7;
-	if (size >= 29 && size <= 32) return 8;
-	if (size >= 33 && size <= 40) return 9;
-	if (size >= 41 && size <= 48) return 10;
-	if (size >= 49 && size <= 64) return 11;
-	if (size >= 65 && size <= 128) return 12;
-	if (size >= 129 && size <= 256) return 13;
-	if (size >= 257 && size <= 512) return 14;
-	if (size >= 513) return 15;
+	if (size >= 5 && size <= 6) return 2;
+	if (size >= 7 && size <= 8) return 3;
+	if (size >= 9 && size <= 10) return 4;
+	if (size >= 11 && size <= 12) return 5;
+	if (size >= 13 && size <= 14) return 6;
+	if (size >= 15 && size <= 16) return 7;
+	if (size >= 17 && size <= 18) return 8;
+	if (size >= 19 && size <= 20) return 9;
+	if (size >= 21 && size <= 32) return 10;
+	if (size >= 33 && size <= 40) return 11;
+	if (size >= 41 && size <= 48) return 12;
+	if (size >= 49 && size <= 64) return 13;
+	if (size >= 65 && size <= 128) return 14;
+	if (size >= 129 && size <= 216) return 15;
+	if (size >= 217 && size <= 448) return 16;
+	if (size >= 449 && size <= 768) return 17;
+	if (size >= 769 && size <= 1536) return 18;
+	if (size >= 1537 && size <= 4096) return 19;
+	if (size >= 4097) return 20;
 	dbg_printf("GET_BUCKETID error: size(%d) doesn't fit any bucket.\n", size);
 	return 0;
 }
 static inline int FIT_BUCKET(int bid, int size) {
 	switch (bid) {
 		case 1: return size >= 1 && size <= 4;
-		case 2: return size >= 5 && size <= 8;
-		case 3: return size >= 9 && size <= 12;
-		case 4: return size >= 13 && size <= 16;
-		case 5: return size >= 17 && size <= 20;
-		case 6:	return size >= 21 && size <= 24;
-		case 7: return size >= 25 && size <= 28;
-		case 8: return size >= 29 && size <= 32;
-		case 9: return size >= 33 && size <= 40;
-		case 10: return size >= 41 && size <= 48;
-		case 11: return size >= 49 && size <= 64;
-		case 12: return size >= 65 && size <= 128;
-		case 13: return size >= 129 && size <= 256;
-		case 14: return size >= 257 && size <= 512;
-		case 15: return size >= 513;
+		case 2: return size >= 5 && size <= 6;
+		case 3: return size >= 7 && size <= 8;
+		case 4: return size >= 9 && size <= 10;
+		case 5: return size >= 11 && size <= 12;
+		case 6:	return size >= 13 && size <= 14;
+		case 7: return size >= 15 && size <= 16;
+		case 8: return size >= 17 && size <= 18;
+		case 9: return size >= 19 && size <= 20;
+		case 10: return size >= 21 && size <= 32;
+		case 11: return size >= 33 && size <= 40;
+		case 12: return size >= 41 && size <= 48;
+		case 13: return size >= 49 && size <= 64;
+		case 14: return size >= 65 && size <= 128;
+		case 15: return size >= 129 && size <= 216;
+		case 16: return size >= 217 && size <= 448;
+		case 17: return size >= 449 && size <= 768;
+		case 18: return size >= 769 && size <= 1536;
+		case 19: return size >= 1537 && size <= 4096;
+		case 20: return size >= 4097;
 	}
 	dbg_printf("FIT_BUCKET error: bid(%d) illegal.\n", bid);
 	return 0;
@@ -167,7 +189,12 @@ static inline void *LIST_HEAD(int bid) {
 		case 12: return head_12;
 		case 13: return head_13;
 		case 14: return head_14;
-		case 15: return head_15;		
+		case 15: return head_15;
+		case 16: return head_16;
+		case 17: return head_17;	
+		case 18: return head_18;	
+		case 19: return head_19;	
+		case 20: return head_20;	
 	}
 	dbg_printf("LIST_HEAD error: bid(%d) illegal.\n", bid);
 	return 0;
@@ -184,6 +211,8 @@ static inline void *LIST_CUR(int bid) {
 		case 8: return cur_8;
 		case 9: return cur_9;
 		case 10: return cur_10;
+		case 11: return cur_11;
+		case 12: return cur_12;
 	}
 	dbg_printf("LIST_HEAD error: bid(%d) illegal.\n", bid);
 	return 0;
@@ -205,7 +234,11 @@ static inline void SET_HEAD(int bid, void *head) {
 		case 13: head_13 = head; return;
 		case 14: head_14 = head; return;
 		case 15: head_15 = head; return;
-
+		case 16: head_16 = head; return;
+		case 17: head_17 = head; return;
+		case 18: head_18 = head; return;
+		case 19: head_19 = head; return;
+		case 20: head_20 = head; return;
 	}
 	dbg_printf("SET_HEAD error: bid(%d) illegal.\n", bid);
 }
@@ -221,6 +254,8 @@ static inline void SET_CUR(int bid, void *cur) {
 		case 8: cur_8 = cur; return;
 		case 9: cur_9 = cur; return;
 		case 10: cur_10 = cur; return;
+		case 11: cur_11 = cur; return;
+		case 12: cur_12 = cur; return;
 	}
 	dbg_printf("SET_CUR error: bid(%d) illegal.\n", bid);
 }
@@ -253,7 +288,7 @@ int mm_init(void) {
 	
 	for (int i = 1; i <= BUCKET_CNT; ++i) { /* initialize list */
 		SET_HEAD(i, PRLG_BP);
-		if (GET_POLICY(i) == LIFO_NXTFIT)
+		if (IS_NXTFIT(GET_POLICY(i)))
 			SET_CUR(i, PRLG_BP);
 	}
 	
@@ -264,7 +299,7 @@ int mm_init(void) {
  * malloc - Allocate a block with at least size bytes of payload 
  */
 void *malloc (size_t size) {
-//	printf("malloc(%ld)\n", size);
+	dbg_printf("malloc(%ld)\n", size);
 	size_t asize;		/* Adjusted block size */
 	size_t extsize;		/* Amount to extend heap if no fit */
 	int i, bid; char *bp;
@@ -607,7 +642,7 @@ static void place(void *bp, size_t asize) {
  */
 static void *find_fit(int bid, size_t asize) {
 	int policy = GET_POLICY(bid); void *bp, *oldbp;
-	if (policy == LIFO_NXTFIT) {
+	if (IS_NXTFIT(policy)) {
 		/* Next fit search */
 		oldbp = LIST_CUR(bid);
 		
@@ -627,16 +662,12 @@ static void *find_fit(int bid, size_t asize) {
 		
 		return NULL;	/* no fit found */
 	}
-	else if (policy == ADDR_FSTFIT) {
+	else {
 		/* First-fit search */
 		for (bp = LIST_HEAD(bid); bp != PRLG_BP; bp = GET_ADDR(LIST_NEXT(bp)))
 			if (!GET_ALLOC(bp) && (asize <= GET_SIZE(HDRP(bp))))
 				return bp;
 		return NULL;	/* no fit found */
-	}
-	else {
-		dbg_printf("find_fit error: policy code illegal.\n");
-		return NULL;
 	}
 }
 
@@ -647,7 +678,7 @@ static void *find_fit(int bid, size_t asize) {
 static void list_insert(int bid, void *bp) {
 	int policy = GET_POLICY(bid);
 	void *head, *cur_bp, *next_bp;
-	if (policy == LIFO_NXTFIT) {	/* last-in-first-out */
+	if (IS_LIFO(policy)) {	/* last-in-first-out */
 		head = LIST_HEAD(bid);
 		if (head == PRLG_BP) {
 			PUT(LIST_PREV(bp), 0);
@@ -707,6 +738,6 @@ static void list_erase(int bid, void *bp) {
 	if (prev_bp == PRLG_BP)
 		SET_HEAD(bid, next_bp);
 	/*Make sure the current-pointer isn't pointing into a erased block */
-	if (policy == LIFO_NXTFIT && bp == LIST_CUR(bid))
+	if (IS_NXTFIT(policy) && bp == LIST_CUR(bid))
 		SET_CUR(bid, next_bp);
 }
