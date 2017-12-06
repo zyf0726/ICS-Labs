@@ -1,9 +1,9 @@
 /* Name : Yunfan Zhang
  * ID	: 1600012710
  ******************************************************************
- * mm.c
+ * mm.c - A dynamic storage allocatr using segregated free lists
  ******************************************************************
- *  31				3 2  1 0			31				3 2  1 0			
+ *  31				3 2  1 0		31				3 2  1 0			
  *  -------------------------		------------------------
  *	 	size     	|.|pa|a|		     size     	|.|pa|a|
  *  -------------------------		------------------------
@@ -52,9 +52,10 @@
 #define ALIGN(p) (((size_t)(p) + (ALIGNMENT-1)) & ~0x7)
 
 /* Basic constants and macros */
-#define WSIZE       	4       	/* Word and header/footer size (bytes) */ 
-#define DSIZE       	8       	/* Double word size (bytes) */
-#define MIN_BLKSIZE		((DSIZE)*2)	/* Minimal block size in heap */
+#define WSIZE       	4       	 /* Word and header/footer size (bytes) */ 
+#define DSIZE       	8       	 /* Double word size (bytes) */
+#define MIN_BLKSIZE		(DSIZE << 1) /* Minimal block size in heap */
+#define CHUNKSIZE 	    (1 << 8)	 /* Extend heap by this amount (bytes) */  
 
 /* Pack a size and allocated bits into a word */
 #define PACK(size, prev_alloc, alloc)  ((size) | ((prev_alloc) << 1) | (alloc)) 
@@ -95,14 +96,14 @@
 [7]		17 ~ 18				....			
 [8]		19 ~ 20				....					
 [9]		21 ~ 32				....			
-[10]	33 ~ 40				....			
+[10]	33 ~ 40			LIFO + best_fit			
 [11]	41 ~ 48				....			
 [12]	49 ~ 64				....			
-[13]	65 ~ 128			....			
-[14]	129 ~ 216			....			
+[13]	65 ~ 128			....
+[14]	129 ~ 216			....
 [15]	217 ~ 448			....			
 [16]	449 ~ 768			....			
-[17]	769 ~ 1536		LIFO + best_fit		
+[17]	769 ~ 1536			....
 [18]	1537 ~ 4096			....
 [19]	4097 ~ 8192			....
 [20]	8193 ~ inf			....
@@ -128,14 +129,12 @@ static void **cur_t = &cur_table.c0;
 #define BSTFIT			0x3
 #define LIFO			0x4
 #define ADDR			0x5
-#define TREE			0x6
 #define IS_NXTFIT(c)		(((c) & 3) == NXTFIT)
 #define IS_FSTFIT(c)		(((c) & 3) == FSTFIT)
 #define IS_BSTFIT(c)		(((c) & 3) == BSTFIT)
 #define IS_LIFO(c)			(((c) & 12) == LIFO)
 #define IS_ADDR(c)			(((c) & 12) == ADDR)
-#define IS_TREE(c)			(((c) & 12) == TREE)
-#define GET_POLICY(bid)		(((bid) <= 16) ? (LIFO | FSTFIT) :\
+#define GET_POLICY(bid)		(((bid) <= 9) ? (LIFO | FSTFIT) :\
 							 (LIFO | BSTFIT))
 #define BUCKET_CNT			21
 
@@ -275,7 +274,7 @@ void *malloc (size_t size) {
 	}
 	
 	/* No fit found. Get more memory and place the block */
-	extsize = asize;
+	extsize = asize > CHUNKSIZE ? asize : CHUNKSIZE;
 	if ((bp = extend_heap(extsize/WSIZE)) == NULL)
 		return NULL;
 	place(bp, asize);
@@ -546,11 +545,6 @@ static void *coalesce(void *bp) {
  *         and split if remainder would be at least minimum block size
  */
 static void place(void *bp, size_t asize) {
-
-//	dbg_printf("PRLG_BP = %p  EPLG_BP=%p\n", PRLG_BP, EPLG_BP);		
-//	for (void *bp = PRLG_BP - WSIZE; bp != EPLG_BP; bp += WSIZE)
-//		dbg_printf("*%p = %u | %u | %u\n", bp, GET_SIZE(bp), GET_PREVALLOC(bp), GET_ALLOC(bp));
-		
 	size_t size = GET_SIZE(HDRP(bp));
 	dbg_printf("place(%p, asize=%ld) size=%ld\n", bp, asize, size);
 	int bid = GET_BUCKETID(size);
@@ -622,7 +616,7 @@ static void *find_fit(int bid, size_t asize) {
 			if (!GET_ALLOC(bp) && asize <= GET_SIZE(HDRP(bp)) &&
 				(!bestbp || GET_SIZE(HDRP(bp)) < GET_SIZE(HDRP(bestbp)))) {
 				bestbp = bp;
-				if (GET_SIZE(HDRP(bestbp)) - asize <= 0.5 * asize)
+				if (GET_SIZE(HDRP(bestbp)) - asize <= 0.2 * asize)
 					return bestbp;
 			}
 		return bestbp;
