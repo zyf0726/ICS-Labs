@@ -55,7 +55,7 @@
 #define WSIZE       	4       	 /* Word and header/footer size (bytes) */ 
 #define DSIZE       	8       	 /* Double word size (bytes) */
 #define MIN_BLKSIZE		(DSIZE << 1) /* Minimal block size in heap */
-#define CHUNKSIZE 	    (1 << 8)	 /* Extend heap by this amount (bytes) */  
+#define CHUNKSIZE 	    (1 << 6)	 /* Extend heap by this amount (bytes) */  
 
 /* Pack a size and allocated bits into a word */
 #define PACK(size, prev_alloc, alloc)  ((size) | ((prev_alloc) << 1) | (alloc)) 
@@ -95,11 +95,11 @@
 [6]		15 ~ 16				....			
 [7]		17 ~ 18				....			
 [8]		19 ~ 20				....					
-[9]		21 ~ 32				....			
-[10]	33 ~ 40			LIFO + best_fit			
-[11]	41 ~ 48				....			
-[12]	49 ~ 64				....			
-[13]	65 ~ 128			....
+[9]		21 ~ 22				....
+[10]	23 ~ 36			LIFO + best_fit			
+[11]	37 ~ 52				....			
+[12]	53 ~ 72				....			
+[13]	73 ~ 128			....
 [14]	129 ~ 216			....
 [15]	217 ~ 448			....			
 [16]	449 ~ 768			....			
@@ -109,20 +109,8 @@
 [20]	8193 ~ inf			....
 *************************************/
 
-struct head_table {
-	void *h0, *h1, *h2, *h3, *h4, *h5;
-	void *h6, *h7, *h8, *h9, *h10, *h11;
-	void *h12, *h13, *h14, *h15, *h16;
-	void *h17, *h18, *h19, *h20, *h21;
-};
-static struct head_table head_table;
-static void **head_t = &head_table.h0;
-
-struct cur_table {
-	void *c0;
-};
-static struct cur_table cur_table;
-static void **cur_t = &cur_table.c0;
+static void **head_t; 			/* list_head pointer table */
+static void **cur_t = NULL;		/* next-fit not used... */
 
 #define NXTFIT			0x1
 #define FSTFIT			0x2
@@ -156,9 +144,9 @@ static inline int GET_BUCKETID(int size) {
 	if (size <= 20) return 8;*/
 	
 	if (size <= 216) {
-		if (size <= 48) {
-			if (size <= 40) {
-				if (size <= 32)
+		if (size <= 52) {
+			if (size <= 36) {
+				if (size <= 22)
 					return 9;
 				else return 10;
 			}
@@ -166,7 +154,7 @@ static inline int GET_BUCKETID(int size) {
 		}
 		else {
 			if (size <= 128) {
-				if (size <= 64)
+				if (size <= 72)
 					return 12;
 				else return 13;
 			}
@@ -191,10 +179,10 @@ static inline int GET_BUCKETID(int size) {
 			else return 20;
 		}
 	}
-/*	if (size <= 32) return 9;
-	if (size <= 40) return 10;
-	if (size <= 48) return 11;
-	if (size <= 64) return 12;
+/*	if (size <= 22) return 9;
+	if (size <= 36) return 10;
+	if (size <= 52) return 11;
+	if (size <= 72) return 12;
 	if (size <= 128) return 13;
 	if (size <= 216) return 14;
 	if (size <= 448) return 15;
@@ -221,8 +209,11 @@ static void list_erase(int bid, void *bp);
  */
 int mm_init(void) {
 	/* Create the initial empty heap */
-	if ((PRLG_BP = mem_sbrk(6*WSIZE)) == (void *)-1) 
+	if ((PRLG_BP = mem_sbrk((6 + 21*2)*WSIZE)) == (void *)-1) 
 		return -1;
+		
+	/* Initialize head pointer table */
+	head_t = PRLG_BP, PRLG_BP += 21*DSIZE;	
 	
 	dbg_printf("\nheap_start = %p\n", PRLG_BP);
 	PUT(PRLG_BP, 0);									/* Alignment padding */
@@ -522,7 +513,7 @@ static void *coalesce(void *bp) {
 		bid = GET_BUCKETID(size);
 		list_insert(bid, bp);
 	}
-	else {
+	else { /* Case 4 */
 		prev_size = GET_SIZE(FTRP(PREV_BLKP(bp)));
 		prev_bid = GET_BUCKETID(prev_size);
 		next_bid = GET_BUCKETID(next_size);
