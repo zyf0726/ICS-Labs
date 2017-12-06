@@ -155,7 +155,44 @@ static inline int GET_BUCKETID(int size) {
 	if (size <= 16) return 6;
 	if (size <= 18) return 7;
 	if (size <= 20) return 8;*/
-	if (size <= 32) return 9;
+	
+	if (size <= 216) {
+		if (size <= 48) {
+			if (size <= 40) {
+				if (size <= 32)
+					return 9;
+				else return 10;
+			}
+			else return 11;
+		}
+		else {
+			if (size <= 128) {
+				if (size <= 64)
+					return 12;
+				else return 13;
+			}
+			else return 14;
+		}
+	}
+	else {
+		if (size <= 1536) {
+			if (size <= 768) {
+				if (size <= 448)
+					return 15;
+				else return 16;
+			}
+			else return 17;
+		}
+		else {
+			if (size <= 8192) {
+				if (size <= 4096)
+					return 18;
+				else return 19;
+			}
+			else return 20;
+		}
+	}
+/*	if (size <= 32) return 9;
 	if (size <= 40) return 10;
 	if (size <= 48) return 11;
 	if (size <= 64) return 12;
@@ -166,7 +203,7 @@ static inline int GET_BUCKETID(int size) {
 	if (size <= 1536) return 17;
 	if (size <= 4096) return 18;
 	if (size <= 8192) return 19;
-	return 20;
+	return 20;*/
 }
 static inline int FIT_BUCKET(int bid, int size) {
 	return bid == GET_BUCKETID(size);
@@ -584,7 +621,9 @@ static void *find_fit(int bid, size_t asize) {
 		for (bp = head_t[bid]; bp != PRLG_BP; bp = GET_ADDR(LIST_NEXT(bp)))
 			if (!GET_ALLOC(bp) && asize <= GET_SIZE(HDRP(bp)) &&
 				(!bestbp || GET_SIZE(HDRP(bp)) < GET_SIZE(HDRP(bestbp)))) {
-				bestbp = bp;	
+				bestbp = bp;
+				if (GET_SIZE(HDRP(bestbp)) - asize <= 0.5 * asize)
+					return bestbp;
 			}
 		return bestbp;
 	}
