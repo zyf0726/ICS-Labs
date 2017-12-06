@@ -83,21 +83,6 @@
 #define NEXT_BLKP(bp)  ((char *)(bp) + GET_SIZE(((char *)(bp) - WSIZE))) 
 #define PREV_BLKP(bp)  ((char *)(bp) - GET_SIZE(((char *)(bp) - DSIZE))) 
 
-struct head_table {
-	void *h0, *h1, *h2, *h3, *h4, *h5;
-	void *h6, *h7, *h8, *h9, *h10, *h11;
-	void *h12, *h13, *h14, *h15, *h16;
-	void *h17, *h18, *h19, *h20, *h21;
-};
-static struct head_table head_table;
-static void **head_t = &head_table.h0;
-
-struct cur_table {
-	void *c0;
-};
-static struct cur_table cur_table;
-static void **cur_t = &cur_table.c0;
-
 /************************************  
 	 	 words				policy 			
 [0]		1 ~  4			LIFO + first_fit
@@ -119,8 +104,25 @@ static void **cur_t = &cur_table.c0;
 [16]	449 ~ 768			....			
 [17]	769 ~ 1536		LIFO + best_fit		
 [18]	1537 ~ 4096			....
-[19]	4097 ~ inf			....
+[19]	4097 ~ 8192			....
+[20]	8193 ~ inf			....
 *************************************/
+
+struct head_table {
+	void *h0, *h1, *h2, *h3, *h4, *h5;
+	void *h6, *h7, *h8, *h9, *h10, *h11;
+	void *h12, *h13, *h14, *h15, *h16;
+	void *h17, *h18, *h19, *h20, *h21;
+};
+static struct head_table head_table;
+static void **head_t = &head_table.h0;
+
+struct cur_table {
+	void *c0;
+};
+static struct cur_table cur_table;
+static void **cur_t = &cur_table.c0;
+
 #define NXTFIT			0x1
 #define FSTFIT			0x2
 #define BSTFIT			0x3
@@ -135,35 +137,36 @@ static void **cur_t = &cur_table.c0;
 #define IS_TREE(c)			(((c) & 12) == TREE)
 #define GET_POLICY(bid)		(((bid) <= 16) ? (LIFO | FSTFIT) :\
 							 (LIFO | BSTFIT))
-#define BUCKET_CNT			20
+#define BUCKET_CNT			21
 
 static void *EPLG_BP = NULL;				/* epilogue block pointer */
 static void *PRLG_BP = NULL;				/* prologue block pointer */
 					
 /* Given size, find which bucket it fits */
 static inline int GET_BUCKETID(int size) {
-	if (size >= 1 && size <= 4) return 0;
-	if (size >= 5 && size <= 6) return 1;
-	if (size >= 7 && size <= 8) return 2;
-	if (size >= 9 && size <= 10) return 3;
-	if (size >= 11 && size <= 12) return 4;
-	if (size >= 13 && size <= 14) return 5;
-	if (size >= 15 && size <= 16) return 6;
-	if (size >= 17 && size <= 18) return 7;
-	if (size >= 19 && size <= 20) return 8;
-	if (size >= 21 && size <= 32) return 9;
-	if (size >= 33 && size <= 40) return 10;
-	if (size >= 41 && size <= 48) return 11;
-	if (size >= 49 && size <= 64) return 12;
-	if (size >= 65 && size <= 128) return 13;
-	if (size >= 129 && size <= 216) return 14;
-	if (size >= 217 && size <= 448) return 15;
-	if (size >= 449 && size <= 768) return 16;
-	if (size >= 769 && size <= 1536) return 17;
-	if (size >= 1537 && size <= 4096) return 18;
-	if (size >= 4097) return 19;
-	dbg_printf("GET_BUCKETID error: size(%d) doesn't fit any bucket.\n", size);
-	return -1;
+	if (size <= 4) return 0;
+	if (size <= 20)
+		return (size >> 1) - 2;
+/*	if (size <= 6) return 1;
+	if (size <= 8) return 2;
+	if (size <= 10) return 3;
+	if (size <= 12) return 4;
+	if (size <= 14) return 5;
+	if (size <= 16) return 6;
+	if (size <= 18) return 7;
+	if (size <= 20) return 8;*/
+	if (size <= 32) return 9;
+	if (size <= 40) return 10;
+	if (size <= 48) return 11;
+	if (size <= 64) return 12;
+	if (size <= 128) return 13;
+	if (size <= 216) return 14;
+	if (size <= 448) return 15;
+	if (size <= 768) return 16;
+	if (size <= 1536) return 17;
+	if (size <= 4096) return 18;
+	if (size <= 8192) return 19;
+	return 20;
 }
 static inline int FIT_BUCKET(int bid, int size) {
 	return bid == GET_BUCKETID(size);
